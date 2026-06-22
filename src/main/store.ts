@@ -40,11 +40,13 @@ export function writeSettings(next: Partial<AppSettings>): AppSettings {
   return merged;
 }
 
-export function saveCredential(token: string): void {
-  const data = safeStorage.isEncryptionAvailable()
-    ? safeStorage.encryptString(token)
-    : Buffer.from(token, 'utf8');
+export function saveCredential(token: string): boolean {
+  if (!safeStorage.isEncryptionAvailable()) {
+    return false;
+  }
+  const data = safeStorage.encryptString(token);
   fs.writeFileSync(credentialsPath(), data);
+  return true;
 }
 
 export function loadCredential(): string | null {

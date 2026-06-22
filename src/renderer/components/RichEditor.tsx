@@ -1,4 +1,5 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import type { Note } from '../../shared/types';
 
 interface RichEditorProps {
@@ -8,8 +9,52 @@ interface RichEditorProps {
   onStatus(message: string): void;
 }
 
+function sanitizeHtml(content: string): string {
+  return DOMPurify.sanitize(content, {
+    ALLOWED_TAGS: ['b', 'i', 'u', 'strong', 'em', 'p', 'br', 'ul', 'ol', 'li', 'span'],
+    ALLOWED_ATTR: ['style'],
+  });
+}
+
 export function RichEditor({ note, onChange, onSave, onStatus }: RichEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!editorRef.current) return;
+    const safe = sanitizeHtml(note.content);
+    if (editorRef.current.innerHTML !== safe) {
+      editorRef.current.innerHTML = safe;
+    }
+  }, [note.content]);
+
+  const syncEditorContent = (): void => {
+    if (!editorRef.current) return;
+    const safe = sanitizeHtml(editorRef.current.innerHTML);
+    if (editorRef.current.innerHTML !== safe) {
+      editorRef.current.innerHTML = safe;
+    }
+    onChange({ ...note, content: safe });
+  };
+
+  const applyFormat = (tagName: 'b' | 'i' | 'u'): void => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) return;
+
+    const wrapper = document.createElement(tagName);
+    try {
+      range.surroundContents(wrapper);
+    } catch {
+      const selectedText = range.toString();
+      wrapper.textContent = selectedText;
+      range.deleteContents();
+      range.insertNode(wrapper);
+    }
+
+    syncEditorContent();
+  };
 
   return (
     <section className="editor">
@@ -21,17 +66,16 @@ export function RichEditor({ note, onChange, onSave, onStatus }: RichEditorProps
         placeholder="Title"
       />
       <div className="toolbar">
-        <button onClick={() => document.execCommand('bold')}>Bold</button>
-        <button onClick={() => document.execCommand('italic')}>Italic</button>
-        <button onClick={() => document.execCommand('underline')}>Underline</button>
+        <button onClick={() => applyFormat('b')}>Bold</button>
+        <button onClick={() => applyFormat('i')}>Italic</button>
+        <button onClick={() => applyFormat('u')}>Underline</button>
       </div>
       <div
         ref={editorRef}
         className="rich-input"
         contentEditable
         suppressContentEditableWarning
-        dangerouslySetInnerHTML={{ __html: note.content }}
-        onInput={(event) => onChange({ ...note, content: (event.target as HTMLDivElement).innerHTML })}
+        onInput={syncEditorContent}
       />
       <div className="editor-actions">
         <button onClick={onSave}>Save note</button>

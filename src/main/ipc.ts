@@ -145,7 +145,9 @@ export function registerIpcHandlers(syncNow: () => Promise<string>): void {
 
   ipcMain.handle(IPC_CHANNELS.credentialSet, async (_, token: string) => {
     if (!isSafeText(token, 10_000)) return failure('Invalid credential');
-    saveCredential(token);
+    if (!saveCredential(token)) {
+      return failure('OS secure encryption is unavailable');
+    }
     return success(true);
   });
 

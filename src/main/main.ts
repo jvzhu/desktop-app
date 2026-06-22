@@ -97,11 +97,16 @@ function setupTray(): void {
 }
 
 function setupSecurityHeaders(): void {
+  const connectSource =
+    process.env.NODE_ENV === 'development'
+      ? "connect-src 'self' http://localhost:3000"
+      : "connect-src 'self' https:";
+
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     callback({
       responseHeaders: {
         ...details.responseHeaders,
-        'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' http://localhost:3000"],
+        'Content-Security-Policy': [`default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; ${connectSource}`],
       },
     });
   });
