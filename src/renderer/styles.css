@@ -1,0 +1,34 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f5f5f7;
+  --fg: #1c1c1e;
+  --surface: #ffffff;
+  --accent: #3a65ff;
+}
+
+:root[data-theme='dark'] {
+  --bg: #1c1c1e;
+  --fg: #f5f5f7;
+  --surface: #2c2c2e;
+  --accent: #82a0ff;
+}
+
+* { box-sizing: border-box; }
+body, html, #root { margin: 0; width: 100%; height: 100%; font-family: Inter, system-ui, sans-serif; }
+body { background: var(--bg); color: var(--fg); }
+.app-shell { display: grid; grid-template-rows: 56px 1fr 28px; height: 100%; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 0 12px; background: var(--surface); border-bottom: 1px solid #8883; }
+.topbar .actions { display: flex; gap: 8px; }
+button { border: 1px solid #8885; background: var(--surface); color: var(--fg); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.workspace { display: grid; grid-template-columns: 250px 1fr; min-height: 0; }
+.sidebar { border-right: 1px solid #8883; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.sidebar .active { border-color: var(--accent); color: var(--accent); }
+.main-content { padding: 12px; overflow: auto; }
+.statusbar { display: flex; align-items: center; padding: 0 10px; border-top: 1px solid #8883; background: var(--surface); }
+.editor { display: grid; gap: 10px; }
+.rich-input { min-height: 300px; border: 1px solid #8884; border-radius: 8px; padding: 10px; background: var(--surface); }
+.toolbar { display: flex; gap: 8px; }
+.file-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.note-item { width: 100%; text-align: left; }
+.modal-backdrop { position: fixed; inset: 0; background: #0006; display: grid; place-items: center; }
+.modal-card { width: min(420px, 92vw); background: var(--surface); border-radius: 12px; padding: 16px; }
