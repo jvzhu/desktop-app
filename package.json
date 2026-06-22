@@ -1,0 +1,95 @@
+{
+  "name": "desktop-app",
+  "version": "1.0.0",
+  "description": "Electron desktop application with React and TypeScript",
+  "main": "dist-electron/main/main.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:renderer\" \"npm:dev:main\" \"npm:dev:electron\"",
+    "dev:renderer": "vite",
+    "dev:main": "tsc -p tsconfig.main.json --watch --preserveWatchOutput",
+    "dev:electron": "wait-on tcp:5173 dist-electron/main/main.js && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
+    "start": "npm run build:main && electron .",
+    "build:renderer": "vite build",
+    "build:main": "tsc -p tsconfig.main.json",
+    "build": "npm run typecheck && npm run build:renderer && npm run build:main",
+    "dist": "npm run build && electron-builder",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.main.json --noEmit",
+    "test": "jest --runInBand",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "better-sqlite3": "12.11.1",
+    "electron-updater": "6.8.9",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.61.0",
+    "@testing-library/jest-dom": "6.9.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jest": "30.0.0",
+    "@types/node": "26.0.0",
+    "@types/react": "19.2.17",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "6.0.2",
+    "concurrently": "10.0.3",
+    "cross-env": "10.1.0",
+    "electron": "42.4.1",
+    "electron-builder": "26.15.3",
+    "jest": "30.4.2",
+    "jest-environment-jsdom": "30.4.1",
+    "ts-jest": "29.4.11",
+    "typescript": "6.0.3",
+    "vite": "8.0.16",
+    "wait-on": "9.0.10"
+  },
+  "build": {
+    "appId": "com.jvzhu.desktopapp",
+    "productName": "Desktop App",
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "mac": {
+      "category": "public.app-category.productivity",
+      "hardenedRuntime": true,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "msi"
+      ],
+      "signingHashAlgorithms": [
+        "sha256"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "jvzhu",
+        "repo": "desktop-app"
+      }
+    ]
+  }
+}
